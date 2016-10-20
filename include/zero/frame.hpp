@@ -1,9 +1,36 @@
 #ifndef __ZERO_FRAME_HPP__
 #define __ZERO_FRAME_HPP__ 1
+#include <cstring>
+#include <cstdint>
+#include <memory>
+#include <string>
+#include <vector>
 #include <zmq.h>
-
 namespace zero
 {
+  using Int8 = std::int8_t;
+  using Int16 = std::int16_t;
+  using Int32 = std::int32_t;
+  using Int64 = std::int64_t;
+  using Uint8 = std::uint8_t;
+  using Uint16 = std::uint16_t;
+  using Uint32 = std::uint32_t;
+  using Uint64 = std::uint64_t;
+  using Octets = std::vector<std::uint8_t>;
+  using Chunk = std::vector<std::uint8_t>;
+  struct TinyString : std::string {
+    using std::string::string;
+    using std::string::operator=;
+  };
+  struct ShortString : std::string {
+    using std::string::string;
+    using std::string::operator=;
+  };
+  struct LongString : std::string {
+    using std::string::string;
+    using std::string::operator=;
+  };
+  
   struct frame
   {
     explicit frame() { zmq_msg_init(&msg); }
@@ -69,5 +96,4 @@ namespace zero
     frame& operator=(const frame&) = delete;
   };
 }
-
 #endif//__ZERO_FRAME_HPP__

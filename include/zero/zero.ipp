@@ -3,6 +3,8 @@
 #include <zero/message.hpp>
 #include <zero/unique_socket.hpp>
 #include <zero/poller.hpp>
+#include <boost/noncopyable.hpp>
+
 namespace
 {
   static const struct zmq_wrapper
@@ -25,325 +27,325 @@ namespace
 
   struct needle : private boost::noncopyable
   {
-    explicit needle(Uint8 *P) : needle(P) {}
-    explicit needle(frame &F) : needle(F.data()) {}
+    explicit needle(zero::Uint8 *P) : pointer(P) {}
+    explicit needle(zero::frame &F) : pointer(F.data()) {}
 
-    unsigned put(Uint8 v)
+    unsigned put(zero::Uint8 v)
     {
-      assert(needle != NULL);
-      *needle = v;
-      needle++;
+      assert(pointer != NULL);
+      *pointer = v;
+      pointer++;
       return 1;
     }
 
-    unsigned put(Uint16 v)
+    unsigned put(zero::Uint16 v)
     {
-      assert(needle != NULL);
-      needle [0] = Uint8(((v >> 8)  & 0xFF));
-      needle [1] = Uint8(((v)       & 0xFF)) ;
-      needle += 2;
+      assert(pointer != NULL);
+      pointer [0] = zero::Uint8(((v >> 8)  & 0xFF));
+      pointer [1] = zero::Uint8(((v)       & 0xFF)) ;
+      pointer += 2;
       return 2;
     }
 
-    unsigned put(Uint32 v)
+    unsigned put(zero::Uint32 v)
     {
-      assert(needle != NULL);
-      needle [0] = Uint8(((v >> 24) & 0xFF));
-      needle [1] = Uint8(((v >> 16) & 0xFF));
-      needle [2] = Uint8(((v >> 8)  & 0xFF));
-      needle [3] = Uint8(((v)       & 0xFF));
-      needle += 4;
+      assert(pointer != NULL);
+      pointer [0] = zero::Uint8(((v >> 24) & 0xFF));
+      pointer [1] = zero::Uint8(((v >> 16) & 0xFF));
+      pointer [2] = zero::Uint8(((v >> 8)  & 0xFF));
+      pointer [3] = zero::Uint8(((v)       & 0xFF));
+      pointer += 4;
       return 4;
     }
 
-    unsigned put(Uint64 v)
+    unsigned put(zero::Uint64 v)
     {
-      assert(needle != NULL);
-      needle [0] = Uint8(((v >> 56) & 0xFF));
-      needle [1] = Uint8(((v >> 48) & 0xFF));
-      needle [2] = Uint8(((v >> 40) & 0xFF));
-      needle [3] = Uint8(((v >> 32) & 0xFF));
-      needle [4] = Uint8(((v >> 24) & 0xFF));
-      needle [5] = Uint8(((v >> 16) & 0xFF));
-      needle [6] = Uint8(((v >> 8)  & 0xFF));
-      needle [7] = Uint8(((v)       & 0xFF));
-      needle += 8;
+      assert(pointer != NULL);
+      pointer [0] = zero::Uint8(((v >> 56) & 0xFF));
+      pointer [1] = zero::Uint8(((v >> 48) & 0xFF));
+      pointer [2] = zero::Uint8(((v >> 40) & 0xFF));
+      pointer [3] = zero::Uint8(((v >> 32) & 0xFF));
+      pointer [4] = zero::Uint8(((v >> 24) & 0xFF));
+      pointer [5] = zero::Uint8(((v >> 16) & 0xFF));
+      pointer [6] = zero::Uint8(((v >> 8)  & 0xFF));
+      pointer [7] = zero::Uint8(((v)       & 0xFF));
+      pointer += 8;
       return 8;
     }
 
-    unsigned get(Uint8 & v)
+    unsigned get(zero::Uint8 & v)
     {
-      assert(needle != NULL);
-      v = *needle;
-      needle++;
+      assert(pointer != NULL);
+      v = *pointer;
+      pointer++;
       return 1;
     }
 
-    unsigned get(Uint16 & v)
+    unsigned get(zero::Uint16 & v)
     {
-      assert(needle != NULL);
-      v = ((Uint16)(needle [0]) << 8)
-    + ((Uint16)(needle [1])) ;
-      needle += 2;
+      assert(pointer != NULL);
+      v = ((zero::Uint16)(pointer [0]) << 8)
+    + ((zero::Uint16)(pointer [1])) ;
+      pointer += 2;
       return 2;
     }
 
-    unsigned get(Uint32 & v)
+    unsigned get(zero::Uint32 & v)
     {
-      assert(needle != NULL);
-      v = ((Uint32)(needle [0]) << 24)
-    + ((Uint32)(needle [1]) << 16)
-    + ((Uint32)(needle [2]) << 8)
-    + ((Uint32)(needle [3]) ) ;
-      needle += 4;
+      assert(pointer != NULL);
+      v = ((zero::Uint32)(pointer [0]) << 24)
+    + ((zero::Uint32)(pointer [1]) << 16)
+    + ((zero::Uint32)(pointer [2]) << 8)
+    + ((zero::Uint32)(pointer [3]) ) ;
+      pointer += 4;
       return 4;
     }
 
-    unsigned get(Uint64 & v)
+    unsigned get(zero::Uint64 & v)
     {
-      assert(needle != NULL);
-      v = ((Uint64)(needle [0]) << 56)
-    + ((Uint64)(needle [1]) << 48)
-    + ((Uint64)(needle [2]) << 40)
-    + ((Uint64)(needle [3]) << 32)
-    + ((Uint64)(needle [4]) << 24)
-    + ((Uint64)(needle [5]) << 16)
-    + ((Uint64)(needle [6]) << 8)
-    +  (Uint64)(needle [7]) ;
-      needle += 8;
+      assert(pointer != NULL);
+      v = ((zero::Uint64)(pointer [0]) << 56)
+    + ((zero::Uint64)(pointer [1]) << 48)
+    + ((zero::Uint64)(pointer [2]) << 40)
+    + ((zero::Uint64)(pointer [3]) << 32)
+    + ((zero::Uint64)(pointer [4]) << 24)
+    + ((zero::Uint64)(pointer [5]) << 16)
+    + ((zero::Uint64)(pointer [6]) << 8)
+    +  (zero::Uint64)(pointer [7]) ;
+      pointer += 8;
       return 8;
     }
 
-    unsigned put(Int8  v)  { return put(static_cast<Uint8> (v)); }
-    unsigned put(Int16 v)  { return put(static_cast<Uint16>(v)); }
-    unsigned put(Int32 v)  { return put(static_cast<Uint32>(v)); }
-    unsigned put(Int64 v)  { return put(static_cast<Uint64>(v)); }
-    unsigned get(Int8  &v) { return get(*reinterpret_cast<Uint8*> (&v)); }
-    unsigned get(Int16 &v) { return get(*reinterpret_cast<Uint16*>(&v)); }
-    unsigned get(Int32 &v) { return get(*reinterpret_cast<Uint32*>(&v)); }
-    unsigned get(Int64 &v) { return get(*reinterpret_cast<Uint64*>(&v)); }
+    unsigned put(zero::Int8  v)  { return put(static_cast<zero::Uint8> (v)); }
+    unsigned put(zero::Int16 v)  { return put(static_cast<zero::Uint16>(v)); }
+    unsigned put(zero::Int32 v)  { return put(static_cast<zero::Uint32>(v)); }
+    unsigned put(zero::Int64 v)  { return put(static_cast<zero::Uint64>(v)); }
+    unsigned get(zero::Int8  &v) { return get(*reinterpret_cast<zero::Uint8*> (&v)); }
+    unsigned get(zero::Int16 &v) { return get(*reinterpret_cast<zero::Uint16*>(&v)); }
+    unsigned get(zero::Int32 &v) { return get(*reinterpret_cast<zero::Uint32*>(&v)); }
+    unsigned get(zero::Int64 &v) { return get(*reinterpret_cast<zero::Uint64*>(&v)); }
 
     template <class SizeType>
     unsigned put_string(const std::string & s)
     {
-      assert(needle != NULL);
+      assert(pointer != NULL);
       std::size_t size = s.size();
       auto n = put(SizeType(size));
-      std::memcpy(needle, &s[0], size);
-      needle += size;
+      std::memcpy(pointer, &s[0], size);
+      pointer += size;
       return n + size;
     }
 
     template <class SizeType>
     unsigned get_string(std::string & s)
     {
-      assert(needle != NULL);
+      assert(pointer != NULL);
       SizeType size;
       auto n = get(size);
       s.resize(size);
-      std::memcpy(&s[0], needle, size);
-      needle += size;
+      std::memcpy(&s[0], pointer, size);
+      pointer += size;
       return n + size;
     }
 
-    unsigned put(const TinyString & s)    { return put_string<Uint8>(s); }
-    unsigned put(const ShortString & s)   { return put_string<Uint16>(s); }
-    unsigned put(const LongString & s)    { return put_string<Uint32>(s); }
-    unsigned get(TinyString & s)          { return get_string<Uint8>(s); }
-    unsigned get(ShortString & s)         { return get_string<Uint16>(s); }
-    unsigned get(LongString & s)          { return get_string<Uint32>(s); }
+    unsigned put(const zero::TinyString & s)    { return put_string<zero::Uint8>(s); }
+    unsigned put(const zero::ShortString & s)   { return put_string<zero::Uint16>(s); }
+    unsigned put(const zero::LongString & s)    { return put_string<zero::Uint32>(s); }
+    unsigned get(zero::TinyString & s)          { return get_string<zero::Uint8>(s); }
+    unsigned get(zero::ShortString & s)         { return get_string<zero::Uint16>(s); }
+    unsigned get(zero::LongString & s)          { return get_string<zero::Uint32>(s); }
 
-    unsigned put(Uint8 *data, std::size_t size)
+    unsigned put(zero::Uint8 *data, std::size_t size)
     {
-      assert(needle != NULL);
-      std::memcpy(needle, data, size);
-      needle += size;
+      assert(pointer != NULL);
+      std::memcpy(pointer, data, size);
+      pointer += size;
       return size;
     }
 
-    unsigned get(Uint8 *data, std::size_t size)
+    unsigned get(zero::Uint8 *data, std::size_t size)
     {
-      assert(needle != NULL);
-      std::memcpy(data, needle, size);
-      needle += size;
+      assert(pointer != NULL);
+      std::memcpy(data, pointer, size);
+      pointer += size;
       return size;
     }
 
-    operator Uint8 *() const { return needle; }
+    operator zero::Uint8 *() const { return pointer; }
 
-    needle & operator =(Uint8 *p)   { needle  = p; return *this; }
-    needle & operator+=(unsigned n) { needle += n; return *this; }
+    needle & operator =(zero::Uint8 *p) { pointer  = p; return *this; }
+    needle & operator+=(unsigned n) { pointer += n; return *this; }
  
   private:
-    Uint8 *needle;
+    zero::Uint8 *pointer;
   };
 
   struct frame_builder : private boost::noncopyable
   {
-    explicit frame_builder() : needle(nullptr), stop(nullptr) {}
-    explicit frame_builder(frame &F) : needle(F.data()), stop(needle + F.size()) {}
-    explicit frame_builder(frame &F, unsigned Offset) : needle(F.data()), stop(needle+F.size())
+    explicit frame_builder() : needle_(nullptr), stop(nullptr) {}
+    explicit frame_builder(zero::frame &F) : needle_(F.data()), stop(needle_ + F.size()) {}
+    explicit frame_builder(zero::frame &F, unsigned Offset) : needle_(F.data()), stop(needle_+F.size())
     {
       if (Offset < F.size()) {
-        needle += Offset;
+        needle_ += Offset;
       } else {
-        needle = stop;
+        needle_ = stop;
       }
     }
 
-    void reset() { needle = stop = nullptr; }
-    void reset(frame &F) { stop = (needle = F.data()) + F.size(); }
-    void reset(frame &F, unsigned Offset) {
+    void reset() { needle_ = stop = nullptr; }
+    void reset(zero::frame &F) { stop = (needle_ = F.data()) + F.size(); }
+    void reset(zero::frame &F, unsigned Offset) {
       reset(F);
       if (Offset < F.size()) {
-        needle += Offset;
+        needle_ += Offset;
       } else {
-        needle = stop;
+        needle_ = stop;
       }
     }
 
-    unsigned put(Uint8 v)
+    unsigned put(zero::Uint8 v)
     {
-      if (stop < needle + 1) return -1;
-      return needle.put(v);
+      if (stop < needle_ + 1) return -1;
+      return needle_.put(v);
     }
 
-    unsigned put(Uint16 v)
+    unsigned put(zero::Uint16 v)
     {
-      if (stop < needle + 2) return -1;
-      return needle.put(v);
+      if (stop < needle_ + 2) return -1;
+      return needle_.put(v);
     }
 
-    unsigned put(Uint32 v)
+    unsigned put(zero::Uint32 v)
     {
-      if (stop < needle + 4) return -1;
-      return needle.put(v);
+      if (stop < needle_ + 4) return -1;
+      return needle_.put(v);
     }
 
-    unsigned put(Uint64 v)
+    unsigned put(zero::Uint64 v)
     {
-      if (stop < needle + 8) return -1;
-      return needle.put(v);
+      if (stop < needle_ + 8) return -1;
+      return needle_.put(v);
     }
 
-    unsigned get(Uint8 & v)
+    unsigned get(zero::Uint8 & v)
     {
-      if (stop < needle + 1) return -1;
-      return needle.get(v);
+      if (stop < needle_ + 1) return -1;
+      return needle_.get(v);
     }
 
-    unsigned get(Uint16 & v)
+    unsigned get(zero::Uint16 & v)
     {
-      if (stop < needle + 2) return -1;
-      return needle.get(v);
+      if (stop < needle_ + 2) return -1;
+      return needle_.get(v);
     }
 
-    unsigned get(Uint32 & v)
+    unsigned get(zero::Uint32 & v)
     {
-      if (stop < needle + 4) return -1;
-      return needle.get(v);
+      if (stop < needle_ + 4) return -1;
+      return needle_.get(v);
     }
 
-    unsigned get(Uint64 & v)
+    unsigned get(zero::Uint64 & v)
     {
-      if (stop < needle + 8) return -1;
-      return needle.get(v);
+      if (stop < needle_ + 8) return -1;
+      return needle_.get(v);
     }
 
-    unsigned put(Int8 v)
+    unsigned put(zero::Int8 v)
     {
-      if (stop < needle + 1) return -1;
-      return needle.put(v);
+      if (stop < needle_ + 1) return -1;
+      return needle_.put(v);
     }
 
-    unsigned put(Int16 v)
+    unsigned put(zero::Int16 v)
     {
-      if (stop < needle + 2) return -1;
-      return needle.put(v);
+      if (stop < needle_ + 2) return -1;
+      return needle_.put(v);
     }
 
-    unsigned put(Int32 v)
+    unsigned put(zero::Int32 v)
     {
-      if (stop < needle + 4) return -1;
-      return needle.put(v);
+      if (stop < needle_ + 4) return -1;
+      return needle_.put(v);
     }
 
-    unsigned put(Int64 v)
+    unsigned put(zero::Int64 v)
     {
-      if (stop < needle + 8) return -1;
-      return needle.put(v);
+      if (stop < needle_ + 8) return -1;
+      return needle_.put(v);
     }
 
-    unsigned get(Int8 & v)
+    unsigned get(zero::Int8 & v)
     {
-      if (stop < needle + 1) return -1;
-      return needle.get(v);
+      if (stop < needle_ + 1) return -1;
+      return needle_.get(v);
     }
 
-    unsigned get(Int16 & v)
+    unsigned get(zero::Int16 & v)
     {
-      if (stop < needle + 2) return -1;
-      return needle.get(v);
+      if (stop < needle_ + 2) return -1;
+      return needle_.get(v);
     }
 
-    unsigned get(Int32 & v)
+    unsigned get(zero::Int32 & v)
     {
-      if (stop < needle + 4) return -1;
-      return needle.get(v);
+      if (stop < needle_ + 4) return -1;
+      return needle_.get(v);
     }
 
-    unsigned get(Int64 & v)
+    unsigned get(zero::Int64 & v)
     {
-      if (stop < needle + 8) return -1;
-      return needle.get(v);
+      if (stop < needle_ + 8) return -1;
+      return needle_.get(v);
     }
 
-    unsigned put(const TinyString & s)
+    unsigned put(const zero::TinyString & s)
     {
-      if (stop < needle + sizeof(Uint8) + s.size()) return -1;
-      return needle.put(s); 
+      if (stop < needle_ + sizeof(zero::Uint8) + s.size()) return -1;
+      return needle_.put(s); 
     }
   
-    unsigned put(const ShortString & s)
+    unsigned put(const zero::ShortString & s)
     {
-      if (stop < needle + sizeof(Uint16) + s.size()) return -1;
-      return needle.put(s); 
+      if (stop < needle_ + sizeof(zero::Uint16) + s.size()) return -1;
+      return needle_.put(s); 
     }
   
-    unsigned put(const LongString & s)
+    unsigned put(const zero::LongString & s)
     {
-      if (stop < needle + sizeof(Uint32) + s.size()) return -1;
-      return needle.put(s); 
+      if (stop < needle_ + sizeof(zero::Uint32) + s.size()) return -1;
+      return needle_.put(s); 
     }
   
-    unsigned get(TinyString & s)
+    unsigned get(zero::TinyString & s)
     {
-      if (stop < needle + sizeof(Uint8)) return -1;
-      return needle.get(s); 
+      if (stop < needle_ + sizeof(zero::Uint8)) return -1;
+      return needle_.get(s); 
     }
   
-    unsigned get(ShortString & s)
+    unsigned get(zero::ShortString & s)
     {
-      if (stop < needle + sizeof(Uint16)) return -1;
-      return needle.get(s); 
+      if (stop < needle_ + sizeof(zero::Uint16)) return -1;
+      return needle_.get(s); 
     }
 
-    unsigned get(LongString & s)
+    unsigned get(zero::LongString & s)
     {
-      if (stop < needle + sizeof(Uint32)) return -1;
-      return needle.get(s); 
+      if (stop < needle_ + sizeof(zero::Uint32)) return -1;
+      return needle_.get(s); 
     }
 
-    unsigned put(Uint8 *data, std::size_t size)
+    unsigned put(zero::Uint8 *data, std::size_t size)
     {
-      if (stop < needle + size) return -1;
-      return needle.put(data, size);
+      if (stop < needle_ + size) return -1;
+      return needle_.put(data, size);
     }
 
-    unsigned get(Uint8 *data, std::size_t size)
+    unsigned get(zero::Uint8 *data, std::size_t size)
     {
-      if (stop < needle + size) return -1;
-      return needle.get(data, size);
+      if (stop < needle_ + size) return -1;
+      return needle_.get(data, size);
     }
  
     template <class T> T get() throw(std::logic_error)
@@ -356,8 +358,8 @@ namespace
     }
   
   private:
-    needle needle;
-    Uint8 *stop;
+    needle needle_;
+    zero::Uint8 *stop;
   };
 } // anonymous namespace
 
@@ -370,10 +372,10 @@ namespace zero
 
     int rc, sndtimeo = 3*1000, rcvtimeo = 3*1000;
     if ((rc = zmq_setsockopt(_handle, ZMQ_SNDTIMEO, &sndtimeo, sizeof(sndtimeo))) < 0) {
-      LOGE("setsockopt(SNDTIMEO): (%d) %s", zmq_errno(), zmq_strerror(zmq_errno()));
+      //LOGE("setsockopt(SNDTIMEO): (%d) %s", zmq_errno(), zmq_strerror(zmq_errno()));
     }
     if ((rc = zmq_setsockopt(_handle, ZMQ_RCVTIMEO, &rcvtimeo, sizeof(rcvtimeo))) < 0) {
-      LOGE("setsockopt(RCVTIMEO): (%d) %s", zmq_errno(), zmq_strerror(zmq_errno()));
+      //LOGE("setsockopt(RCVTIMEO): (%d) %s", zmq_errno(), zmq_strerror(zmq_errno()));
     }
   }
 
@@ -417,7 +419,8 @@ namespace zero
 #endif//__ZERO_FRAME_HPP__
 
 #ifdef __ZERO_MESSAGE_HPP__
-  message::message() : ptr_list(), HasRouteID(false)
+  message::message()
+    : ptr_list(), HasRouteID(false)
   {
   }
 

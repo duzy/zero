@@ -1,5 +1,6 @@
 #ifndef __ZERO_UNIQUE_SOCKET_HPP__
 #define __ZERO_UNIQUE_SOCKET_HPP__ 1
+#include <cassert>
 namespace zero
 {
   struct unique_socket

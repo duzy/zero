@@ -3,13 +3,13 @@
 #define __ZERO_POLLER_HPP__ 1
 namespace zero
 {
-  struct Poller
+  struct poller
   {
-    Poller() : _handle(zmq_poller_new()) {
+    poller() : _handle(zmq_poller_new()) {
       assert(_handle && "invalid poller handle");
     }
 
-    ~Poller() {
+    ~poller() {
       if (zmq_poller_destroy(&_handle) < 0) {
         /// ...
       }
@@ -25,8 +25,8 @@ namespace zero
     void *_handle;
 
     /// Disable copy from lvalue.
-    Poller(const Poller &) = delete;
-    Poller & operator=(const Poller &) = delete;
+    poller(const poller &) = delete;
+    poller & operator=(const poller &) = delete;
   };
 }//namespace zero
 #endif//__ZERO_POLLER_HPP__

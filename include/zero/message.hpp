@@ -1,9 +1,15 @@
 #ifndef __ZERO_MESSAGE_HPP__
 #define __ZERO_MESSAGE_HPP__ 1
+#ifndef __JNI_GLUE_GEN__
 #  include <boost/ptr_container/ptr_list.hpp>
+#endif
+#include "zero/frame.hpp"
 namespace zero
 {
-  struct message : boost::ptr_list<Frame>
+  struct message
+#ifndef __JNI_GLUE_GEN__
+    : boost::ptr_list<frame>
+#endif
   {
     message();
     ~message() = default;
@@ -16,7 +22,7 @@ namespace zero
     /**
      *  Returns route id or nullptr(if not a routed message) .
      */
-    const Frame *get_routing_frame() const;
+    const frame *get_routing_frame() const;
   
     /**
      *  `recv` receive Frames from `source`, returns zero on success or non-zero when partially
