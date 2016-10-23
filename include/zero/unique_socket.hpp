@@ -1,34 +1,33 @@
 #ifndef __ZERO_UNIQUE_SOCKET_HPP__
 #define __ZERO_UNIQUE_SOCKET_HPP__ 1
-#include <cassert>
+#include <memory>
 namespace zero
 {
   struct unique_socket
   {
-    explicit unique_socket(int type);
+    //constexpr unique_socket() noexcept : _handle(nullptr) {}
 
-    unique_socket(unique_socket &&o) noexcept : _handle(o.release()) {}
-  
-    ~unique_socket() noexcept { 
-      if (_handle != nullptr) zmq_close(_handle);
-      //std::clog << "close: " << _handle << std::endl;
+    explicit unique_socket(int type) noexcept;
+
+    ~unique_socket() noexcept {
+      if (_handle != nullptr) zmq_close(release());
     }
 
+    unique_socket(unique_socket &&o) noexcept : _handle(o.release()) {
+    }
+    
     unique_socket& operator=(unique_socket &&o) noexcept {
       if (_handle != nullptr) zmq_close(_handle);
       _handle = o.release();
       return *this;
     }
-  
-    operator void*() const {
-      assert(_handle != NULL);
-      return _handle; 
-    }
 
+    void *get() const noexcept { return _handle; }
+    
     void *release() noexcept {
-      void *h = _handle;
+      auto handle = _handle;
       _handle = nullptr;
-      return h;
+      return handle;
     }
 
     int getsockopt(int option, void *optval, size_t *optvallen) {
@@ -62,8 +61,8 @@ namespace zero
     void *_handle;
 
     // Disable default constructor.
-    // unique_socket() = delete;
-
+    unique_socket() = delete;
+    
     // Disable copy from lvalue.
     unique_socket(const unique_socket&) = delete;
     unique_socket& operator=(const unique_socket&) = delete;

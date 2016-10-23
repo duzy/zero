@@ -30,4 +30,6 @@ namespace zero
   };
 }//namespace zero
 #endif//__ZERO_POLLER_HPP__
-#endif// 4.2.0 <= ZMQ_VERSION
+#else
+//#  error "zero::poller requires ZMQ 4.2.0 or above"
+#endif// ZMQ_VERSION < 4.2.0

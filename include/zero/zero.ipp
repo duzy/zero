@@ -366,7 +366,8 @@ namespace
 namespace zero
 {
 #ifdef __ZERO_UNIQUE_SOCKET_HPP__
-  unique_socket::unique_socket(int type) : _handle(zmq_socket(zmq.context(), type)) 
+  unique_socket::unique_socket(int type) noexcept
+    : _handle(zmq_socket(zmq.context(), type)) 
   {
     assert(_handle != nullptr);
 
