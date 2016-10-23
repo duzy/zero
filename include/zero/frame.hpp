@@ -85,5 +85,9 @@ namespace zero
     frame(const frame&) = delete;
     frame& operator=(const frame&) = delete;
   };
-}
+
+  int errnum(void); // errno
+  const char *strerror(int en);
+  const char *strerror();
+}//namespace zero
 #endif//__ZERO_FRAME_HPP__

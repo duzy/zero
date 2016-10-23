@@ -366,8 +366,8 @@ namespace
 namespace zero
 {
 #ifdef __ZERO_UNIQUE_SOCKET_HPP__
-  unique_socket::unique_socket(int type) noexcept
-    : handle(zmq_socket(zmq.context(), type)) 
+  unique_socket::unique_socket(socket type) noexcept
+    : handle(zmq_socket(zmq.context(), (int) type)) 
   {
     assert(handle != nullptr);
 
@@ -387,11 +387,11 @@ namespace zero
 
   int unique_socket::close() noexcept { return zmq_close(release()); }
 
-  int unique_socket::getsockopt(int option, void *optval, size_t *optvallen) {
-    return zmq_getsockopt(handle, option, optval, optvallen);
+  int unique_socket::getsockopt(sockopt option, void *optval, size_t *optvallen) {
+    return zmq_getsockopt(handle, (int) option, optval, optvallen);
   }
-  int unique_socket::setsockopt(int option, const void*optval, size_t optvallen) {
-    return zmq_setsockopt(handle, option, optval, optvallen);
+  int unique_socket::setsockopt(sockopt option, const void*optval, size_t optvallen) {
+    return zmq_setsockopt(handle, (int) option, optval, optvallen);
   }
 
   int unique_socket::bind(const char *addr) { return zmq_bind(handle, addr); }
@@ -532,6 +532,7 @@ namespace zero
 #endif//__ZERO_MESSAGE_HPP__
 
 #ifdef __ZERO_POLLER_HPP__
+  // ZMQ_HAVE_POLLER
 #if ZMQ_MAKE_VERSION(4, 2, 0) <= ZMQ_VERSION
   poller::poller() : handle(zmq_poller_new()) 
   {
@@ -562,4 +563,8 @@ namespace zero
 //#  error "zero::poller requires ZMQ 4.2.0 or above"
 #endif// 4.2.0 <= ZMQ_VERSION
 #endif//__ZERO_POLLER_HPP__
+
+  int errnum(void) { return zmq_errno(); }
+  const char *strerror(int en) { return zmq_strerror(en); }
+  const char *strerror() { return zmq_strerror(zmq_errno()); }
 } // namespace zero
