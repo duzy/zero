@@ -1,61 +1,45 @@
 #ifndef __ZERO_UNIQUE_SOCKET_HPP__
 #define __ZERO_UNIQUE_SOCKET_HPP__ 1
-#include <memory>
 namespace zero
 {
   struct unique_socket
   {
-    //constexpr unique_socket() noexcept : _handle(nullptr) {}
+    //constexpr unique_socket() noexcept : handle(nullptr) {}
 
     explicit unique_socket(int type) noexcept;
 
-    ~unique_socket() noexcept {
-      if (_handle != nullptr) zmq_close(release());
-    }
+    ~unique_socket() noexcept;
 
-    unique_socket(unique_socket &&o) noexcept : _handle(o.release()) {
-    }
+    unique_socket(unique_socket &&o) noexcept : handle(o.release()) { }
     
     unique_socket& operator=(unique_socket &&o) noexcept {
-      if (_handle != nullptr) zmq_close(_handle);
-      _handle = o.release();
+      if (handle != nullptr) close();
+      handle = o.release();
       return *this;
     }
 
-    void *get() const noexcept { return _handle; }
-    void *release() noexcept { auto h = _handle; _handle = nullptr; return h; }
+    void *get() const noexcept { return handle; }
+    void *release() noexcept { auto h = handle; handle = nullptr; return h; }
 
-    int close() noexcept { return zmq_close(release()); }
+    int close() noexcept;
 
-    int getsockopt(int option, void *optval, size_t *optvallen) {
-      return zmq_getsockopt(_handle, option, optval, optvallen);
-    }
-    int setsockopt(int option, const void*optval, size_t optvallen) {
-      return zmq_setsockopt(_handle, option, optval, optvallen);
-    }
+    int getsockopt(int option, void *optval, size_t *optvallen);
+    int setsockopt(int option, const void*optval, size_t optvallen);
 
-    int bind(const char *addr) { return zmq_bind(_handle, addr); }
-    int unbind(const char *addr) { return zmq_unbind(_handle, addr); }
+    int bind(const char *addr);
+    int unbind(const char *addr);
 
-    int connect(const char *addr) { return zmq_connect(_handle, addr); }
-    int disconnect(const char *addr) { return zmq_disconnect(_handle, addr); }
+    int connect(const char *addr);
+    int disconnect(const char *addr);
 
-    int recv(void *buf, size_t len, int flags) {
-      return zmq_recv(_handle, buf, len, flags);
-    }
-    int send(const void *buf, size_t len, int flags) {
-      return zmq_send(_handle, buf, len, flags);
-    }
-    int send_const(const void *buf, size_t len, int flags) {
-      return zmq_send_const(_handle, buf, len, flags);
-    }
+    int recv(void *buf, size_t len, int flags);
+    int send(const void *buf, size_t len, int flags);
+    int send_const(const void *buf, size_t len, int flags);
 
-    int monitor(const char *addr, int events) {
-      return zmq_socket_monitor(_handle, addr, events); 
-    }
+    int monitor(const char *addr, int events);
  
   private:
-    void *_handle;
+    void *handle;
 
     // Disable default constructor.
     unique_socket() = delete;

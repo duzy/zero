@@ -5,7 +5,6 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include <zmq.h>
 namespace zero
 {
   using Int8 = std::int8_t;
@@ -33,63 +32,54 @@ namespace zero
   
   struct frame
   {
-    explicit frame() { zmq_msg_init(&msg); }
-    explicit frame( std::size_t size ) { zmq_msg_init_size(&msg, size); }
-    explicit frame( const std::string &s ) {
-      auto size = s.size();
-      zmq_msg_init_size(&msg, size);
-      std::memcpy(data(), &s[0], size);
-    }
+    typedef union underlying_t {unsigned char _ [64]; void *p; } underlying_t;
+    typedef void (data_free_fn) (void *data, void *hint);
+      
+    explicit frame();
+    explicit frame( std::size_t size );
+    explicit frame( const std::string &s );
 
-    ~frame() { zmq_msg_close(&msg); }
+    ~frame();
 
-    operator zmq_msg_t&() { return msg; }
-    operator const zmq_msg_t&() const { return msg; }
-
-    operator zmq_msg_t*() { return &msg; }
-    operator const zmq_msg_t*() const { return &msg; }
-
-    int init() { return zmq_msg_init(&msg); }
-    int init_size(size_t size) { return zmq_msg_init_size(&msg, size); }
-    int init_data(void *data, size_t size, zmq_free_fn *ffn, void *hint)
-    { return zmq_msg_init_data(&msg, data, size, ffn, hint); }
-
+    int init();
+    int init_size(size_t size);
+    int init_data(void *data, size_t size, data_free_fn *ffn = nullptr, void *hint = nullptr);
     int init_value(std::uint32_t); /// init frame with a uint32_t value
 
-    std::size_t size() const { return zmq_msg_size(const_cast<zmq_msg_t*>(&msg)); }
-    Uint8 *data() { return (Uint8*) zmq_msg_data(&msg); }
-    Uint8 *data() const { return (Uint8*) zmq_msg_data(const_cast<zmq_msg_t*>(&msg)); }
-    Uint8 *data_end() { return data() + size(); }
-    Uint8 *data_end() const { return data() + size(); }
+    std::size_t size() const;
+    Uint8 *data();
+    Uint8 *data() const;
+    Uint8 *data_end();
+    Uint8 *data_end() const;
 
     std::string as_string() const { return std::string(data(), data_end()); }
     std::uint32_t as_uint32() const;
 
-    int copy(frame & dest) { return zmq_msg_copy(&dest.msg, &msg); }
-    int move(frame & dest) { return zmq_msg_move(&dest.msg, &msg); }
+    int copy(frame & dest);
+    int move(frame & dest);
 
-    int more() { return zmq_msg_more(&msg); }
+    int more();
 
-    int get(int property) const { return zmq_msg_get(const_cast<zmq_msg_t*>(&msg), property); }
-    int set(int property, int optval) { return zmq_msg_set(&msg, property, optval); }
+    int get(int property) const;
+    int set(int property, int optval);
 
     /**
      *  The caller shall not modify or free the returned value,
      *  which shall be owned by the message. The encoding of the property and value
      *  shall be UTF8.
      */
-    //const char *gets(const char *property) { return zmq_msg_gets(&msg, property); }
+    //const char *gets(const char *property);
 
-    int send(void *s, int flags) { return zmq_msg_send(&msg, s, flags); }
-    int recv(void *s, int flags) { return zmq_msg_recv(&msg, s, flags); }
+    int send(void *s, int flags);
+    int recv(void *s, int flags);
 
 #if 0
-    int set_routing_id(std::uint32_t id) { return zmq_msg_set_routing_id(&msg, id); }
-    std::uint32_t routing_id() const { return zmq_msg_routing_id(const_cast<zmq_msg_t*>(&msg)); }
+    int set_routing_id(std::uint32_t id);
+    std::uint32_t routing_id() const;
 #endif
 
   private:
-    zmq_msg_t msg;
+    underlying_t underlying;
 
     // Disable copy from lvalue.
     frame(const frame&) = delete;
