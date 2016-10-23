@@ -23,12 +23,9 @@ namespace zero
     }
 
     void *get() const noexcept { return _handle; }
-    
-    void *release() noexcept {
-      auto handle = _handle;
-      _handle = nullptr;
-      return handle;
-    }
+    void *release() noexcept { auto h = _handle; _handle = nullptr; return h; }
+
+    int close() noexcept { return zmq_close(release()); }
 
     int getsockopt(int option, void *optval, size_t *optvallen) {
       return zmq_getsockopt(_handle, option, optval, optvallen);
