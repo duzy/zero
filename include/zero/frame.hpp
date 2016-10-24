@@ -7,29 +7,6 @@
 #include <vector>
 namespace zero
 {
-  using Int8 = std::int8_t;
-  using Int16 = std::int16_t;
-  using Int32 = std::int32_t;
-  using Int64 = std::int64_t;
-  using Uint8 = std::uint8_t;
-  using Uint16 = std::uint16_t;
-  using Uint32 = std::uint32_t;
-  using Uint64 = std::uint64_t;
-  using Octets = std::vector<std::uint8_t>;
-  using Chunk = std::vector<std::uint8_t>;
-  struct TinyString : std::string {
-    using std::string::string;
-    using std::string::operator=;
-  };
-  struct ShortString : std::string {
-    using std::string::string;
-    using std::string::operator=;
-  };
-  struct LongString : std::string {
-    using std::string::string;
-    using std::string::operator=;
-  };
-  
   struct frame
   {
     typedef union underlying_t {unsigned char _ [64]; void *p; } underlying_t;
@@ -47,10 +24,10 @@ namespace zero
     int init_value(std::uint32_t); /// init frame with a uint32_t value
 
     std::size_t size() const;
-    Uint8 *data();
-    Uint8 *data() const;
-    Uint8 *data_end();
-    Uint8 *data_end() const;
+    std::uint8_t *data();
+    std::uint8_t *data() const;
+    std::uint8_t *data_end();
+    std::uint8_t *data_end() const;
 
     std::string as_string() const { return std::string(data(), data_end()); }
     std::uint32_t as_uint32() const;
