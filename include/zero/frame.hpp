@@ -70,8 +70,8 @@ namespace zero
      */
     //const char *gets(const char *property);
 
-    int send(void *s, int flags);
-    int recv(void *s, int flags);
+    int send(void *s, int flags = 0);
+    int recv(void *s, int flags = 0);
 
 #if 0
     int set_routing_id(std::uint32_t id);

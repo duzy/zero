@@ -28,13 +28,13 @@ namespace zero
      *  `recv` receive Frames from `source`, returns zero on success or non-zero when partially
      *  or none received.
      */
-    int recv(void *source, int flags);
+    int recv(void *source, int flags = 0);
 
     /**
      *  send message to `dest`, returns zero after successfully sent or non-zero on partially
      *  sent or none sent.
      */
-    int send(void *dest, int flags);
+    int send(void *dest, int flags = 0);
 
   private:
     bool HasRouteID;
