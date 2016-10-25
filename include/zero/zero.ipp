@@ -219,7 +219,6 @@ namespace zero
     auto EC = zmq_poller_wait(handle, &Ev, timeout);
     event->socket = Ev.socket;
     event->events = Ev.events;
-    event->revents = Ev.revents;
     return EC;
   }
 
@@ -227,7 +226,7 @@ namespace zero
 
   struct poller_impl
   {
-    std::list<zmq_pollitem_t> items;
+    std::vector<zmq_pollitem_t> items;
   };
 
   poller::poller() : handle(new poller_impl())
@@ -264,9 +263,10 @@ namespace zero
     auto it = impl->items.end();
     for (auto i = impl->items.begin(); i != impl->items.end();) {
       if (i->socket == socket) {
-        i = impl->items.erase(i);
+        impl->items.erase(i);
+        return 0;
       } else {
-        ++i;        
+        ++i;
       }
     }
     return 0;
@@ -278,7 +278,6 @@ namespace zero
     
     event->socket = 0;
     event->events = 0;
-    event->revents = 0;
 
     auto EC = zmq_poll(&impl->items[0], impl->items.size(), timeout);
     if ( EC < 0 ) return EC;
@@ -286,7 +285,6 @@ namespace zero
       if (item.events & item.revents) {
         event->socket = item.socket;
         event->events = item.events;
-        event->revents = item.revents;
         return 0;
       }
     }
