@@ -236,7 +236,7 @@ namespace zero
 
   poller::~poller()
   {
-    delete handle;
+    delete reinterpret_cast<poller_impl*>(handle);
     handle = nullptr;
   }
 
