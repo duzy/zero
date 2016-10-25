@@ -195,8 +195,8 @@ namespace zero
 #endif//__ZERO_MESSAGE_HPP__
 
 #ifdef __ZERO_POLLER_HPP__
-  // if ZMQ_HAVE_POLLER
 #ifdef ZMQ_HAVE_POLLER //ZMQ_MAKE_VERSION(4, 2, 0) <= ZMQ_VERSION
+
   poller::poller() : handle(zmq_poller_new())
   {
     assert(handle && "invalid poller handle");
@@ -219,11 +219,80 @@ namespace zero
     auto EC = zmq_poller_wait(handle, &Ev, timeout);
     event->socket = Ev.socket;
     event->events = Ev.events;
+    event->revents = Ev.revents;
     return EC;
   }
 
 #else
-//#  error "zero::poller requires ZMQ 4.2.0 or above"
+
+  struct poller_impl
+  {
+    std::list<zmq_pollitem_t> items;
+  };
+
+  poller::poller() : handle(new poller_impl())
+  {
+  }
+
+  poller::~poller()
+  {
+    delete handle;
+    handle = nullptr;
+  }
+
+  int poller::add(void *socket, void */*user_data*/, short events)
+  {
+    auto impl = reinterpret_cast<poller_impl*>(handle);
+    impl->items.push_back({ socket, 0, events, 0 });
+    return 0;
+  }
+
+  int poller::modify(void *socket, short events)
+  {
+    auto impl = reinterpret_cast<poller_impl*>(handle);
+    for (auto &item : impl->items) {
+      if (item.socket == socket) {
+        item.events = events;
+      }
+    }
+    return 0;
+  }
+
+  int poller::remove(void *socket) 
+  {
+    auto impl = reinterpret_cast<poller_impl*>(handle);
+    auto it = impl->items.end();
+    for (auto i = impl->items.begin(); i != impl->items.end();) {
+      if (i->socket == socket) {
+        i = impl->items.erase(i);
+      } else {
+        ++i;        
+      }
+    }
+    return 0;
+  }
+  
+  int poller::wait(poller_event_t *event, long timeout)
+  {
+    auto impl = reinterpret_cast<poller_impl*>(handle);
+    
+    event->socket = 0;
+    event->events = 0;
+    event->revents = 0;
+
+    auto EC = zmq_poll(&impl->items[0], impl->items.size(), timeout);
+    if ( EC < 0 ) return EC;
+    for (auto &item : impl->items) {
+      if (item.events & item.revents) {
+        event->socket = item.socket;
+        event->events = item.events;
+        event->revents = item.revents;
+        return 0;
+      }
+    }
+    return EC;
+  }
+
 #endif// 4.2.0 <= ZMQ_VERSION
 #endif//__ZERO_POLLER_HPP__
 

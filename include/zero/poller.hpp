@@ -6,6 +6,7 @@ namespace zero
   {
     void *socket;
     short events;
+    short revents;
   };
 
   struct poller
