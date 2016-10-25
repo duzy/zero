@@ -196,7 +196,7 @@ namespace zero
 
 #ifdef __ZERO_POLLER_HPP__
   // if ZMQ_HAVE_POLLER
-#if ZMQ_HAVE_POLLER //ZMQ_MAKE_VERSION(4, 2, 0) <= ZMQ_VERSION
+#ifdef ZMQ_HAVE_POLLER //ZMQ_MAKE_VERSION(4, 2, 0) <= ZMQ_VERSION
   poller::poller() : handle(zmq_poller_new())
   {
     assert(handle && "invalid poller handle");
