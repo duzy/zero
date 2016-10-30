@@ -81,8 +81,6 @@ namespace zero
   
   struct unique_socket
   {
-    //constexpr unique_socket() noexcept : handle(nullptr) {}
-
     explicit unique_socket(socket type) noexcept;
 
     ~unique_socket() noexcept;
@@ -103,16 +101,21 @@ namespace zero
     int getsockopt(sockopt option, void *optval, size_t *optvallen);
     int setsockopt(sockopt option, const void*optval, size_t optvallen);
 
+    int bind(const std::string &s) { return bind(s.c_str()); }
     int bind(const char *addr);
+    int unbind(const std::string &s) { return unbind(s.c_str()); }
     int unbind(const char *addr);
 
+    int connect(const std::string &s) { return connect(s.c_str()); }
     int connect(const char *addr);
+    int disconnect(const std::string &s) { return disconnect(s.c_str()); }
     int disconnect(const char *addr);
 
-    int recv(void *buf, size_t len, int flags);
-    int send(const void *buf, size_t len, int flags);
-    int send_const(const void *buf, size_t len, int flags);
+    int recv(void *buf, size_t len, int flags = 0);
+    int send(const void *buf, size_t len, int flags = 0);
+    int send_const(const void *buf, size_t len, int flags = 0);
 
+    int monitor(const std::string &s, int events) { return monitor(s.c_str(), events); }
     int monitor(const char *addr, int events);
  
   private:
