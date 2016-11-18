@@ -50,6 +50,9 @@ namespace zero
     int send(void *s, int flags = 0);
     int recv(void *s, int flags = 0);
 
+    template<typename Socket> int send(const Socket &sock, int flags = 0) { return this->send(sock.get(), flags); }
+    template<typename Socket> int recv(const Socket &sock, int flags = 0) { return this->recv(sock.get(), flags); }
+
 #if 0
     int set_routing_id(std::uint32_t id);
     std::uint32_t routing_id() const;

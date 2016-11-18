@@ -128,6 +128,7 @@ namespace zero
 #endif
 
 #undef M
+#undef MC
 #endif//__ZERO_FRAME_HPP__
 
 #ifdef __ZERO_MESSAGE_HPP__

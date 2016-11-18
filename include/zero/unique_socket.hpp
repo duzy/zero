@@ -18,6 +18,16 @@ namespace zero
     STREAM = 11,
     XREQ = DEALER,
     XREP = ROUTER,
+
+    /*
+    SERVER = 12,
+    CLIENT = 13,
+    RADIO = 14,
+    DISH = 15,
+    GATHER = 16,
+    SCATTER = 17,
+    DGRAM = 18,
+    */
   };
 
   enum class sockopt
