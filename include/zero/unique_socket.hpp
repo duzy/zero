@@ -113,7 +113,8 @@ namespace zero
 
     int setsockopt(sockopt option, const std::string &val) 
     {
-      return setsockopt(option, val.c_str(), val.size() + 1/* \0 */);
+      //return setsockopt(option, val.c_str(), val.size() + 1/* \0 */);
+      return setsockopt(option, val.data(), val.size());
     }
 
     int bind(const std::string &s) { return bind(s.c_str()); }

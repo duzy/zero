@@ -36,6 +36,9 @@ namespace zero
      */
     int send(void *dest, int flags = 0);
 
+    template<typename Socket> int send(const Socket &sock, int flags = 0) { return this->send(sock.get(), flags); }
+    template<typename Socket> int recv(const Socket &sock, int flags = 0) { return this->recv(sock.get(), flags); }
+    
   private:
     bool HasRouteID;
   };
