@@ -111,6 +111,11 @@ namespace zero
     int getsockopt(sockopt option, void *optval, size_t *optvallen);
     int setsockopt(sockopt option, const void*optval, size_t optvallen);
 
+    int setsockopt(sockopt option, const std::string &val) 
+    {
+      return setsockopt(option, val.c_str(), val.size() + 1/* \0 */);
+    }
+
     int bind(const std::string &s) { return bind(s.c_str()); }
     int bind(const char *addr);
     int unbind(const std::string &s) { return unbind(s.c_str()); }
