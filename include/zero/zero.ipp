@@ -75,12 +75,7 @@ namespace zero
 #define MC reinterpret_cast<const zmq_msg_t*>(&underlying)
   frame::frame() { zmq_msg_init(M); }
   frame::frame( std::size_t size ) { zmq_msg_init_size(M, size); }
-  frame::frame( const std::string &s )
-  {
-    auto size = s.size();
-    zmq_msg_init_size(M, size);
-    std::memcpy(data(), &s[0], size);
-  }
+  frame::frame( const std::string &s ) { init_value(s); }
 
   frame::~frame() { zmq_msg_close(M); }
 
@@ -92,6 +87,12 @@ namespace zero
     auto RC = init_size(sizeof value);
     if (0 <= RC) needle(*this).put(value);
     return RC;
+  }
+  int frame::init_value(const std::string &s)
+  {
+    auto size = s.size();
+    zmq_msg_init_size(M, size);
+    std::memcpy(data(), &s[0], size);
   }
 
   std::size_t frame::size() const { return zmq_msg_size(const_cast<zmq_msg_t*>(MC)); }

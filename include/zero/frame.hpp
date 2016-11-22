@@ -22,6 +22,7 @@ namespace zero
     int init_size(size_t size);
     int init_data(void *data, size_t size, data_free_fn *ffn = nullptr, void *hint = nullptr);
     int init_value(std::uint32_t); /// init frame with a uint32_t value
+    int init_value(const std::string &s); /// init frame with a uint32_t value
 
     std::size_t size() const;
     std::uint8_t *data();
